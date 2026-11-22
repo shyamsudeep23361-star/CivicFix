@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CivicFix – Municipal Resolution Portal</title>
+<style>
+:root{--bg:#f9f9ff;--bg2:#f1f3ff;--line:#e9edff;--pri:#0051d5;--navy:#00254b;--txt:#43474f;--teal:#00433d;--red:#ffdad6;--chip:#dbe1ff;--ink:#121b2e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;padding-top:80px}
+a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
+.w{max-width:1232px;margin:0 auto}
+section{padding:40px 24px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.55px;text-transform:uppercase;color:var(--pri);margin-bottom:8px}
+h2{color:var(--navy);font-size:32px;line-height:40px;letter-spacing:-.5px}
+h3{color:var(--navy);font-size:18px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:8px;padding:14px 24px;font:600 14px Inter,system-ui,sans-serif;cursor:pointer;background:var(--chip);color:var(--navy)}
+.btn.p{background:var(--pri);color:#fff;box-shadow:0 4px 6px -1px #0001}
+.btn.t{background:var(--teal);color:#fff}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:2px 10px;font-size:11px;font-weight:700;background:var(--chip);color:#00174b}
+.pill.r{background:var(--red);color:#93000a}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--pri);display:inline-block}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 1px #0000000d}
+/* header */
+header{position:fixed;top:0;left:0;right:0;height:80px;background:#f9f9ffe6;backdrop-filter:blur(12px);box-shadow:0 1px 8px #0000000a;z-index:20}
+header .w{display:flex;align-items:center;justify-content:space-between;height:80px;padding:0 24px;max-width:none}
+.logo{display:flex;align-items:center;gap:8px}
+.logo i{width:38px;height:40px;border-radius:8px;background:var(--navy);color:#fff;display:grid;place-items:center;font-style:normal}
+.logo b{display:block;color:var(--navy);font-size:20px;line-height:25px}
+.logo small{display:block;font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--txt);line-height:14px}
+nav{display:flex;gap:4px;margin-left:24px}
+nav a{padding:8px 16px;font-size:14px;font-weight:600;color:var(--txt);line-height:20px;text-align:center}
+nav a.on{color:var(--pri);border-bottom:2px solid var(--pri)}
+.hr{display:flex;align-items:center;gap:16px}
+.lang{display:flex;align-items:center;background:var(--bg2);border-radius:8px;padding:4px;font-size:12px;font-weight:700}
+.lang span{padding:4px 8px;border-radius:4px}.lang .a{background:#fff;color:var(--pri)}
+.bell{position:relative;font-size:18px;cursor:pointer}.bell:after{content:"";position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:#ba1a1a}
+.av{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:12px}
+.burger{display:none;background:none;border:0;font-size:24px;color:var(--navy)}
+/* hero */
+.hero{background:linear-gradient(#f1f3ff,#f9f9ff 50%)}
+.hero .w{display:grid;grid-template-columns:7fr 5fr;gap:40px;align-items:center}
+.hero .badge{background:var(--chip);display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:6px 16px;font-size:11px;font-weight:700;letter-spacing:.55px;color:#00174b;margin-bottom:16px}
+h1{color:var(--navy);font-size:56px;line-height:64px;letter-spacing:-1.4px;margin-bottom:16px}
+h1 span{color:var(--pri);font-weight:400}
+.hero p.l{font-size:18px;line-height:29px;max-width:576px;margin-bottom:40px}
+.cta{display:flex;flex-wrap:wrap;gap:16px}
+.trust{display:flex;gap:16px;border-top:1px solid #c3c6d066;margin-top:40px;padding-top:17px;max-width:512px}
+.trust div{flex:1}.trust b{display:block;color:var(--navy);font-size:16px}.trust small{font-size:11px;font-weight:700;letter-spacing:.44px}
+.tele{background:#fff;border-radius:12px;padding:24px;box-shadow:0 20px 25px -5px #0000001a}
+.th{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px}
+.th b{color:var(--navy)}.th small{display:block;font-size:11px}
+.ok{background:var(--teal);color:#fff;border-radius:99px;padding:4px 10px;font-size:10px;font-weight:700}
+.row{background:var(--bg2);border-radius:8px;padding:16px;margin-bottom:16px}
+.row>div{display:flex;justify-content:space-between;font-size:12px;gap:8px}
+.row>div:first-child{font-size:14px;font-weight:600;color:var(--navy)}
+.row>div:first-child em{font-style:normal;font-size:12px;font-weight:700;color:var(--teal)}
+.bar{height:8px;border-radius:99px;background:var(--line);margin:8px 0}.bar i{display:block;height:100%;border-radius:99px;background:var(--teal)}
+.tf{display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:var(--navy)}
+/* metrics */
+.metrics{background:var(--navy);padding:24px}
+.metrics .w{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.metrics div{border-left:1px solid #ffffff22;padding-left:24px;color:#a8c8fc;font-size:12px}
+.metrics div:first-child{border:0;padding:0}
+.metrics b{display:block;color:#fff;font-size:34px;line-height:40px}.metrics b u{text-decoration:none;color:#6bd8cb}
+.metrics span{display:block;color:#fff;font-size:14px;font-weight:600;padding-top:4px}
+/* steps */
+.ctr{text-align:center;max-width:768px;margin:0 auto 40px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.num{width:48px;height:48px;border-radius:8px;background:#d5e3ff;color:var(--pri);display:grid;place-items:center;font-weight:700;font-size:20px;margin-bottom:12px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--pri);margin-bottom:8px}
+.steps p{font-size:14px;line-height:20px;margin-top:8px}
+.steps .f{border-top:1px solid var(--line);margin-top:16px;padding-top:9px;font-size:11px;font-weight:700;color:var(--teal)}
+/* verify */
+.vh{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}
+.vh p{max-width:512px;font-size:15px}
+.vc{background:#fff;border-left:4px solid var(--teal);border-radius:16px;padding:40px 40px 40px 44px;box-shadow:0 1px 3px #0000001a}
+.vt{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:24px}
+.vt .l{display:flex;gap:16px;align-items:center}.vt small{display:block;font-size:12px}
+.ph{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.ph .top{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.ph .top small{font-weight:400;color:var(--txt)}
+.im{position:relative;border-radius:12px;overflow:hidden;height:256px;background:var(--line)}
+.im img{width:100%;height:100%;object-fit:cover}
+.im span{position:absolute;left:4px;bottom:4px;background:#000000b3;color:#fff;font-size:10px;padding:4px 8px;border-radius:4px}
+.ph p{font-size:14px;margin-top:8px}
+.q{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;background:var(--bg2);border-radius:12px;padding:24px;margin-top:24px}
+.q>div:first-child{flex:1;min-width:260px;max-width:512px}.q .top{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--navy)}
+.q .bar{height:10px}.q p{font-size:14px}
+.qb{display:flex;gap:8px}.qb .btn{padding:10px 16px}
+/* issues */
+.ih{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px}
+.ih a{color:var(--pri);font-weight:600;font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.cards .card .m{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:var(--txt)}
+.cards h3{margin:4px 0;line-height:24px}.cards small{font-size:12px}
+.cards .im{height:176px;margin:12px 0}.cards p{font-size:14px}
+.cf{border-top:1px solid var(--line);margin-top:16px;padding-top:9px;display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--txt)}
+.cf i{color:var(--teal);font-style:normal}
+.cards .btn{width:100%;justify-content:center;margin-top:16px;padding:8px;font-size:12px;background:var(--bg2);color:var(--pri)}
+/* map */
+.mp{background:var(--bg2)}
+.mp .w{display:grid;grid-template-columns:5fr 8fr;gap:24px;align-items:center}
+.wr{display:flex;justify-content:space-between;background:#fff;border-radius:8px;padding:8px;margin-bottom:8px;font-size:13px;font-weight:600;color:var(--navy)}
+.wr span{font-size:11px;color:var(--teal)}
+.mpc{background:#fff;border-radius:16px;padding:8px;box-shadow:0 10px 15px -3px #0000001a}
+.mpb{height:384px;border-radius:12px;background:#d9e2fc center/cover;display:flex;align-items:flex-end;padding:16px}
+.mpb div{background:#fffffff2;border-radius:8px;padding:12px 16px;max-width:320px;font-size:12px}
+.mpb b{display:block;color:var(--navy);font-size:14px}
+/* trust */
+.tr{border-top:1px solid var(--line)}
+.tr .t{text-align:center;margin-bottom:24px}.tr .t h3{font-size:20px}
+.mand{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.mand .card{display:flex;gap:16px}
+.ic{width:40px;height:40px;flex:none;border-radius:8px;background:#d5e3ff;display:grid;place-items:center;color:var(--pri)}
+.mand h4{color:var(--navy);font-size:14px;margin-bottom:4px}.mand p{font-size:13px;line-height:18px}
+.fin{background:#173b67;border-radius:16px;padding:24px;margin-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;color:#dbe1ff}
+.fin h4{color:#fff;font-size:18px}.fin p{font-size:13px}.fin .l{display:flex;gap:16px;align-items:center}
+.fin .ic{width:48px;height:48px;background:#ffffff1f;color:#fff}
+.fin .btn.w2{background:#fff;color:var(--navy)}
+/* footer */
+footer{background:#fff;padding:40px 24px 24px;box-shadow:0 1px 4px #0000000a}
+.fg{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+footer h4{font-size:11px;letter-spacing:.5px;color:var(--navy);margin-bottom:8px}
+footer li{list-style:none;font-size:13px;margin-bottom:4px}footer p{font-size:13px}
+.fb{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px;padding-top:16px;font-size:12px}
+.fb div{display:flex;gap:16px}
+/* modal */
+.ov{position:fixed;inset:0;background:#00254b99;display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.ov.show{display:flex}
+.md{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:440px;position:relative;box-shadow:0 20px 25px -5px #0003}
+.md h3{font-size:22px;margin-bottom:4px}.md .x{position:absolute;top:12px;right:16px;background:none;border:0;font-size:24px;cursor:pointer;color:var(--txt)}
+.md label{display:block;font-size:12px;font-weight:700;color:var(--navy);margin:16px 0 4px}
+.md input{width:100%;padding:12px;border:1px solid #c3c6d0;border-radius:8px;font:14px Inter,system-ui,sans-serif;background:var(--bg)}
+.md input:focus{outline:2px solid var(--pri);border-color:var(--pri)}
+.md .btn{width:100%;justify-content:center;margin-top:24px}
+#msg{margin-top:12px;font-size:13px;font-weight:600;text-align:center;min-height:18px}
+@media(max-width:1024px){nav{display:none}.burger{display:block}.hero .w,.mp .w{grid-template-columns:1fr}.steps,.metrics .w,.fg{grid-template-columns:1fr 1fr}.cards,.mand{grid-template-columns:1fr}h1{font-size:44px;line-height:52px}.lang,.hr .lk{display:none}}
+@media(max-width:640px){h1{font-size:34px;line-height:42px}h2{font-size:26px;line-height:34px}.steps,.metrics .w,.fg,.ph{grid-template-columns:1fr}.vh,.ih{flex-direction:column;align-items:flex-start}.vc{padding:24px 20px}.metrics div{border:0;padding:0}.hr .btn{display:none}}
+</style>
+</head>
+<body>
+<header><div class="w">
+ <div style="display:flex;align-items:center">
+  <a class="logo" href="#"><i>🏛</i><span><b>CivicFix</b><small>MUNICIPAL RESOLUTION PORTAL</small></span></a>
+  <nav><a class="on" href="#">Home</a><a href="#issues">Explore Issues</a><a href="#" data-open>Report an Issue</a><a href="#verify">Track &amp; Verify</a><a href="#map">Admin Operations</a></nav>
+ </div>
+ <div class="hr">
+  <div class="lang"><span class="a">EN</span>|<span>ಕನ್ನಡ</span></div>
+  <a class="lk btn p" href="#" data-open style="padding:10px 16px">⚑ Quick Report</a>
+  <span class="bell">🔔</span><span class="av">▾</span><button class="burger" aria-label="Menu">☰</button>
+ </div>
+</div></header>
+
+<main>
+<section class="hero"><div class="w">
+ <div>
+  <div class="badge"><span class="dot"></span>OFFICIAL CIVIC REDRESSAL PORTAL • BENGALURU METROPOLITAN AREA</div>
+  <h1>Your City Deserves Better. <span>Start With Your Voice.</span></h1>
+  <p class="l">CivicFix bridges civil society and municipal engineers with binding service standards, tamper-proof geo-tracking, and community-verified resolution sign-offs. No black-box tickets. No forgotten hazards.</p>
+  <div class="cta"><a class="btn p" href="#" data-open style="padding:14px 40px">📷 Report an Issue Now</a><a class="btn" href="#issues">🔍 Explore Reported Issues</a></div>
+  <div class="trust"><div><b>48-Hr</b><small>Mandated Inspection</small></div><div><b>100%</b><small>Citizen Verified Audit</small></div><div><b>198</b><small>Connected Wards</small></div></div>
+ </div>
+ <div class="tele">
+  <div class="th"><div><b>Live Infrastructure Grid</b><small>Telemetry updated 42s ago</small></div><span class="ok">● SYSTEM HEALTHY</span></div>
+  <div class="row"><div><span>🛣 Potholes &amp; Road Surface</span><em>Avg repair: 36.2 hrs</em></div><div class="bar"><i style="width:82%;background:var(--pri)"></i></div><div class="tf"><span>94 crews dispatched</span><span>Target SLA: &lt;48h</span></div></div>
+  <div class="row"><div><span>💡 Streetlight Power Grid</span><em>98.4% Operational</em></div><div class="bar"><i style="width:98.4%"></i></div><div class="tf"><span>124,190 LED nodes active</span><span>16 outages under repair</span></div></div>
+  <div class="row"><div><span>💧 Water Supply &amp; Sump Pressure</span><em>Main Line 4.2 Bar</em></div><div class="bar"><i style="width:91%"></i></div><div class="tf"><span>Pressure optimal</span><span>Ward 142 main valve clear</span></div></div>
+  <div class="row"><div><span>🚛 Garbage Fleet Daily Route</span><em>78% Ward Coverage</em></div><div class="bar"><i style="width:78%"></i></div><div class="tf"><span>312 Compactors on route</span><span>Morning cycle active</span></div></div>
+  <div class="th" style="border:0;border-top:1px solid var(--line);padding:16px 0 0;margin:0;font-size:11px"><span>🛡 Municipal SCADA Integrated</span><a href="#" style="color:var(--pri);font-weight:700">View Master Feed →</a></div>
+ </div>
+</div></section>
+
+<div class="metrics"><div class="w">
+ <div><b>14,820<u>+</u></b><span>Total Complaints Filed</span>Audited public filings since 2024</div>
+ <div><b>842</b><span>In-Progress Crews Active</span>Live work orders on city streets</div>
+ <div><b>1,290</b><span>Pending Citizen Sign-off</span>Crew finished • Awaiting resident vote</div>
+ <div><b>12,688</b><span>Citizen-Verified Fixed</span>94.2% verified satisfaction rate</div>
+</div></div>
+
+<section><div class="w">
+ <div class="ctr"><div class="eyebrow">STANDARD OPERATING PROCEDURE</div><h2>How CivicFix Converts Grievance into Binding Action</h2><p style="margin-top:12px">Built according to public administration standards. Designed so civic tickets can never be marked resolved without photographic and community proof.</p></div>
+ <div class="steps">
+  <div class="card"><div class="num">01</div><div class="tag">📍 GEOTAG &amp; WARD DETECT</div><h3>Report an Issue</h3><p>Snap a geotagged photo. The portal auto-detects municipal ward boundaries, categorizes hazard severity, and notifies the jurisdictional engineer instantly.</p><div class="f">Average intake: &lt; 90 seconds</div></div>
+  <div class="card"><div class="num">02</div><div class="tag">👥 COMMUNITY WEIGHT</div><h3>Community Supports It</h3><p>Nearby residents co-sign and vote. Duplicates merge automatically into an escalated ticket cluster, prioritizing municipal funding towards high-impact areas.</p><div class="f">Eliminates duplicate work orders</div></div>
+  <div class="card"><div class="num">03</div><div class="tag">⚖ BINDING MANDATE</div><h3>Authorities Take Action</h3><p>Work crew dispatched with allocated contractor budget. Official countdown SLA (48-72 hrs) begins with real-time field status visible to all ward residents.</p><div class="f">Statutory SLA tracked openly</div></div>
+  <div class="card"><div class="num">04</div><div class="tag">✔ PROOF REQUIRED</div><h3>Citizens Verify Fix</h3><p>Crews submit geotagged repair proof. The ticket remains open until local residents inspect the site and cast verification votes. No proof, no sign-off.</p><div class="f">3 verified votes needed to close</div></div>
+ </div>
+</div></section>
+
+<section id="verify" style="background:var(--bg2)"><div class="w">
+ <div class="vh"><div><div class="eyebrow">CITIZEN OVERSIGHT ENGINE</div><h2>Designed for Absolute Transparency. Built for Rapid Redressal.</h2></div><p>Inspect how the municipal field crew completed repair ticket <b style="color:var(--pri)">#CV-9042</b>. Citizens hold final administrative voting power.</p></div>
+ <div class="vc">
+  <div class="vt"><div class="l"><span class="pill" style="border-radius:4px">#CV-9042</span><div><h3>Severe Stormwater Drain Sump Collapse</h3><small>Ward 150 (Bellandur Lake Feeder Rd) • Reported by citizen A. Rao</small></div></div>
+   <div class="l"><span class="pill"><span class="dot"></span>Verification Stage</span><small style="color:var(--teal);font-weight:700">SLA met: 31 hrs remaining</small></div></div>
+  <div class="ph">
+   <div><div class="top"><span>📷 Citizen Report Photo (Before)</span><small>Oct 24, 08:14 AM</small></div><div class="im"><img alt="Before" src="images/before.png"><span>Lat 12.9279° N, Long 77.6771° E</span></div><p>Citizen Description: Deep cavern forming next to pedestrian crossing. Two scooters had near misses during morning rainfall.</p></div>
+   <div><div class="top"><span style="color:var(--teal)">✔ Field Crew Proof (Completed)</span><small>Oct 25, 03:40 PM</small></div><div class="im"><img alt="After" src="images/after.png"><span>Verified: Crew Unit BBMP-703 Geo-tagged</span></div><p>Municipal Contractor Note: Replaced 2 broken RCC culvert slabs, backfilled structural gravel, hot-asphalt sealed perimeter.</p></div>
+  </div>
+  <div class="q"><div><div class="top"><span>Citizen Quorum Progress</span><span style="color:var(--teal)">2 of 3 Resident Verifications Collected</span></div><div class="bar"><i style="width:66.6%"></i></div><p>1 more local resident physically near Ward 150 must confirm repair quality to formally close ticket.</p></div>
+   <div class="qb"><button class="btn" style="background:#fff">👎 Dispute Repair Quality</button><button class="btn t">👍 Confirm Resolved</button></div></div>
+ </div>
+</div></section>
+
+<section id="issues"><div class="w">
+ <div class="ih"><div><div class="eyebrow">PUBLIC DOCKET</div><h2>Active Neighborhood Issues</h2></div><a href="#">View all 842 live complaints across city →</a></div>
+ <div class="cards">
+  <div class="card"><div class="m"><span>#CV-9104</span><span class="pill r"><span class="dot" style="background:#ba1a1a;width:6px;height:6px"></span>High Priority</span></div><h3>Deep Asphalt Pothole on Flyover Approach</h3><small>Ward 174 (HSR Layout Sector 2) • 4 hours ago</small><div class="im"><img alt="Pothole" src="images/pothole.png"></div><p>Major tire hazard in the fast lane immediately after descending the main flyover. Causing sudden swerving of…</p><div class="cf"><i>● Crew Dispatched (SLA: 24h)</i><span>Assigned: BBMP-R8</span></div><button class="btn">👍 64 citizens support this</button></div>
+  <div class="card"><div class="m"><span>#CV-9088</span><span class="pill"><span class="dot" style="width:6px;height:6px"></span>Medium Priority</span></div><h3>Non-Functional LED Streetlights (6 Poles)</h3><small>Ward 112 (Indiranagar 100ft Road cross) • 14 hours ago</small><div class="im"><img alt="Streetlights" src="images/streetlights.png"></div><p>Entire pedestrian lane pitch dark between 12th Main and 8th Cross. Safety issue for night workers and early morning</p><div class="cf"><i>● Parts Sourced (SLA: 18h)</i><span>Assigned: BESCOM-Grid</span></div><button class="btn">👍 48 citizens support this</button></div>
+  <div class="card"><div class="m"><span>#CV-9051</span><span class="pill r"><span class="dot" style="background:#ba1a1a;width:6px;height:6px"></span>Critical Health</span></div><h3>Overflowing Garbage Blackspot Near School Gate</h3><small>Ward 88 (Malleshwaram 7th Cross) • 22 hours ago</small><div class="im"><img alt="Garbage" src="images/garbage.png"></div><p>Commercial dump overflowing onto pedestrian path 30 meters from government primary school. Stray dogs…</p><div class="cf"><i>● Compactor En Route</i><span>Assigned: SWM-Unit-4</span></div><button class="btn">👍 112 citizens support this</button></div>
+ </div>
+</div></section>
+
+<section id="map" class="mp"><div class="w">
+ <div><div class="eyebrow">GIS GEOLOCATION INTELLIGENCE</div><h2>Every Inch of the City Mapped to Accountable Engineers</h2><p style="margin:16px 0">CivicFix eliminates bureaucratic ping-pong. When you drop a pin, your issue maps directly to the designated Assistant Executive Engineer and municipal ward contractor.</p>
+  <div class="wr">East Zone (54 Wards)<span>96.1% Resolution</span></div><div class="wr">South Zone (48 Wards)<span>92.4% Resolution</span></div><div class="wr">Mahadevapura (28 Wards)<span>89.8% Resolution</span></div>
+  <a href="#" style="color:var(--pri);font-weight:600;font-size:14px;display:inline-block;margin-top:16px">Launch Interactive Ward Explorer →</a></div>
+ <div class="mpc"><div class="mpb" style="background-image:url(images/map.png)"><div><span class="pill" style="background:var(--teal);color:#fff">ACTIVE GEOFENCE ACTIVE</span><b style="margin-top:6px">BBMP Central Command Center</b>198 Ward Control Rooms active with real-time GPS fleet transponders and automated citizen verification triggers.</div></div></div>
+</div></section>
+
+<section class="tr"><div class="w">
+ <div class="t"><h3>Municipal Accountability Guarantees</h3><p style="font-size:14px">Backed by Karnataka Municipal Corporations Act &amp; Right to Public Services Legislation.</p></div>
+ <div class="mand">
+  <div class="card"><div class="ic">⚖</div><div><h4>48-Hour Statutory Inspection</h4><p>Every hazardous road, drainage, or wire complaint requires physically logged on-site verification within 48 business hours or auto-escalates to the Commissioner.</p></div></div>
+  <div class="card"><div class="ic">🌐</div><div><h4>Open Geo-Data &amp; Audits</h4><p>All contractor bills, completion logs, and resolution photos are published via Open Spatial APIs for academic, RTI, and resident welfare association audits.</p></div></div>
+  <div class="card"><div class="ic">🔒</div><div><h4>ISO 27001 Certified Security</h4><p>Citizen identity and contact parameters are encrypted under strict privacy standards. Whistleblowers can report municipal irregularities completely anonymously.</p></div></div>
+ </div>
+ <div class="fin"><div class="l"><div class="ic">📣</div><div><h4>Witness an urgent civic hazard right now?</h4><p>It takes less than 60 seconds to file a geotagged complaint that cannot be ignored.</p></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn w2" href="#" data-open>File Instant Complaint</a><a class="btn" href="#verify" style="background:#ffffff1f;color:#fff">Track Ticket Status</a></div></div>
+</div></section>
+</main>
+
+<footer><div class="w">
+ <div class="fg">
+  <div><a class="logo" href="#" style="margin-bottom:12px"><i style="width:32px;height:32px">🏛</i><b style="font-size:18px">CivicFix</b></a><p>Public grievance redressal infrastructure guaranteeing institutional accountability, resolution tracking, and civic participation.</p></div>
+  <div><h4>CIVIC SERVICES</h4><ul><li>Report Civic Hazard</li><li>Check Complaint Status</li><li>Live Issue Map</li><li>Citizen Validation</li></ul></div>
+  <div><h4>GOVERNANCE</h4><ul><li>Wards &amp; Jurisdictions</li><li>Citizen SLA Charter</li><li>Open City Data Portal</li><li>Emergency Contacts</li></ul></div>
+  <div><h4>HELPLINE &amp; SUPPORT</h4><p>Toll-Free Grievance Desk: <b style="color:var(--ink)">1800-CIVIC-FIX</b></p><p style="margin-top:8px">Control Room Operations: 24/7 Mon-Sun</p></div>
+ </div>
+ <div class="fb"><span>© 2025 Municipal Corporation Governance Division. All municipal service standards enforced.</span><div><a href="#">Privacy Policy</a><a href="#">Right to Information</a><a href="#">Terms of Service</a></div></div>
+</div></footer>
+
+<div class="ov" id="ov"><div class="md">
+ <button class="x" id="cl" aria-label="Close">×</button>
+ <h3>Report an Issue</h3><p style="font-size:14px">Share your details and our ward team will reach out.</p>
+ <form id="f" novalidate>
+  <label for="name">Name</label><input id="name" name="name" type="text" placeholder="Your full name" required>
+  <label for="email">Email</label><input id="email" name="email" type="email" placeholder="you@example.com" required>
+  <label for="phone">Phone</label><input id="phone" name="phone" type="tel" placeholder="+91 98765 43210" required>
+  <button class="btn p" id="sb" type="submit">Submit Report</button>
+  <div id="msg" role="status"></div>
+ </form>
+</div></div>
+
+<script>
+var SUPABASE_URL = "https://qtqjaylpmbpuokbfjcye.supabase.co";
+var SUPABASE_KEY = "sb_publishable_uc5JLkQwqtbvAh1VDx3Vtw_Hd4NIhg8";
+var ov = document.getElementById("ov"), f = document.getElementById("f"),
+    msg = document.getElementById("msg"), sb = document.getElementById("sb");
+
+function openM(e){ if(e) e.preventDefault(); msg.textContent=""; ov.classList.add("show"); document.getElementById("name").focus(); }
+function closeM(){ ov.classList.remove("show"); }
+document.querySelectorAll("[data-open]").forEach(function(b){ b.addEventListener("click", openM); });
+document.getElementById("cl").addEventListener("click", closeM);
+ov.addEventListener("click", function(e){ if(e.target === ov) closeM(); });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape") closeM(); });
+
+function showSuccess(){
+  msg.style.color = "#00433d"; msg.textContent = "✔ Thank you! Your report has been submitted.";
+  f.reset(); sb.disabled = false; sb.textContent = "Submit Report";
+  setTimeout(closeM, 2200);
+}
+function showError(){
+  msg.style.color = "#ba1a1a"; msg.textContent = "Something went wrong. Please try again.";
+  sb.disabled = false; sb.textContent = "Submit Report";
+}
+
+f.addEventListener("submit", function(e){
+  e.preventDefault();
+  var name = document.getElementById("name").value.trim(),
+      email = document.getElementById("email").value.trim(),
+      phone = document.getElementById("phone").value.trim();
+  if(!name || !email || !phone){ showError(); msg.textContent = "Please fill in name, email and phone."; return; }
+  sb.disabled = true; sb.textContent = "Submitting…"; msg.textContent = "";
+  fetch(SUPABASE_URL + "/rest/v1/complaints", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify({ name: name, email: email, phone: phone })
+  })
+    .then(function(res){
+      if (res.ok) showSuccess();
+      else throw new Error("Save failed: " + res.status);
+    })
+    .catch(function(){ showError(); });
+});
+</script>
+</body>
+</html>
