@@ -502,12 +502,43 @@ footer a:hover{opacity:1;transform:translateX(6px)}
     <label for="category">Issue category</label>
     <select id="category" required>
       <option value="">Select a category…</option>
-      <option value="Potholes">Potholes</option>
-      <option value="Streetlights">Streetlights</option>
-      <option value="Garbage">Garbage</option>
-      <option value="Water Supply">Water Supply</option>
+      <option value="Hostel">Hostel</option>
+      <option value="Classroom">Classroom</option>
+      <option value="Laboratory">Laboratory</option>
+      <option value="Library">Library</option>
+      <option value="Canteen">Canteen</option>
+      <option value="Transport">Transport</option>
+      <option value="Sanitation">Sanitation</option>
+      <option value="Electrical">Electrical</option>
+      <option value="Water">Water</option>
+      <option value="Wi-Fi and IT">Wi-Fi and IT</option>
+      <option value="Academic and Exams">Academic and Exams</option>
+      <option value="Admin Office">Admin Office</option>
       <option value="Other">Other</option>
     </select>
+    <label for="block">Block</label>
+    <select id="block" required>
+      <option value="">Select a block…</option>
+      <option value="Block A">Block A</option>
+      <option value="Block B">Block B</option>
+      <option value="Block C">Block C</option>
+      <option value="Admin Block">Admin Block</option>
+      <option value="Hostel">Hostel</option>
+      <option value="Canteen Area">Canteen Area</option>
+      <option value="Other">Other</option>
+    </select>
+    <label for="floor">Floor</label>
+    <select id="floor" required>
+      <option value="">Select a floor…</option>
+      <option value="Ground">Ground</option>
+      <option value="1st">1st</option>
+      <option value="2nd">2nd</option>
+      <option value="3rd">3rd</option>
+      <option value="4th">4th</option>
+      <option value="Outdoor">Outdoor</option>
+    </select>
+    <label for="location">Room or area (optional)</label>
+    <input id="location" type="text" maxlength="80" placeholder="e.g. Room 204, Washroom near stairs">
     <label for="description">Describe the complaint</label>
     <textarea id="description" rows="4" maxlength="1000" placeholder="What is the problem, and where exactly is it? (at least 10 characters)" required></textarea>
     <label for="name">Name</label><input id="name" type="text" placeholder="Your full name" required>
@@ -736,6 +767,7 @@ $("rm_form").addEventListener("submit", function(e){
   var category = $("category").value, description = $("description").value.trim();
   var name = $("name").value.trim(), email = $("email").value.trim(), phone = $("phone").value.trim();
   if (!category) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please choose an issue category."; return; }
+  if (!$("block").value || !$("floor").value) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please choose the block and floor."; return; }
   if (description.length < 10) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please describe the complaint (at least 10 characters)."; return; }
   if (!name || !email || !phone) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please fill in name, email and phone."; return; }
   $("sb").disabled = true; $("sb").textContent = "Submitting…"; $("msg").textContent = "";
@@ -743,7 +775,10 @@ $("rm_form").addEventListener("submit", function(e){
   if (getToken()) headers["Authorization"] = "Bearer " + getToken();
   fetch(SUPABASE_URL + "/rest/v1/complaints", {
     method: "POST", headers: headers,
-    body: JSON.stringify({ name: name, email: email, phone: phone, category: category, description: description })
+    body: JSON.stringify({
+      name: name, email: email, phone: phone, category: category, description: description,
+      block: $("block").value, floor: $("floor").value, location: $("location").value.trim() || null
+    })
   })
     .then(function(res){ if (!res.ok) throw new Error("Save failed: " + res.status); return res; })
     .then(function(){
