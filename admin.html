@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>CivicFix Admin</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#E6DED4;--card:#fff;--ink:#00254b;--pri:#0051d5;--txt:#43474f;--line:#00254b1f;--red:#ba1a1a;--teal:#00433d}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.5}
+button{font-family:inherit}
+.hidden{display:none!important}
+/* login */
+#loginView{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.card{background:var(--card);border-radius:20px;padding:clamp(24px,4vw,34px);width:100%;max-width:400px;box-shadow:0 20px 40px -18px #00254b55}
+.card h1{color:var(--ink);font-size:24px;margin-bottom:4px}
+.sub{font-size:14px;margin-bottom:22px}
+label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin:16px 0 6px}
+input{width:100%;padding:12px 14px;border:1px solid #c3c6d0;border-radius:12px;font:15px Inter,system-ui,sans-serif;background:#f9f9ff;color:var(--ink)}
+input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px #0051d52a}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:11px 20px;font:700 14px Inter,system-ui,sans-serif;cursor:pointer;background:var(--pri);color:#fff;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px -8px #0051d5aa}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn.light{background:#fff;color:var(--ink);box-shadow:0 2px 6px #00254b1a}
+.btn.wide{width:100%;margin-top:22px;padding:14px}
+.msg{margin-top:12px;font-size:13px;font-weight:600;text-align:center;min-height:18px;color:var(--red)}
+/* dashboard */
+header{background:var(--ink);color:#fff;padding:0 clamp(16px,3vw,32px);height:72px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:18px}
+.brand i{width:36px;height:36px;border-radius:11px;background:#fff;color:var(--ink);display:grid;place-items:center;font-style:normal}
+.who{display:flex;align-items:center;gap:12px;font-size:14px}
+.who .btn{padding:9px 16px;font-size:13px}
+main{padding:clamp(18px,3vw,32px);max-width:1200px;margin:0 auto}
+h2{color:var(--ink);font-size:clamp(22px,3vw,28px);margin-bottom:6px}
+.lead{font-size:14px;margin-bottom:22px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+.stat{background:var(--card);border-radius:16px;padding:18px 20px;box-shadow:0 6px 16px -10px #00254b55}
+.stat span{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt)}
+.stat b{display:block;font-size:clamp(24px,3vw,32px);color:var(--ink);font-variant-numeric:tabular-nums;margin-top:4px}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.toolbar input{max-width:360px;background:#fff}
+.toolbar .count{font-size:13px;margin-left:auto;font-weight:600}
+.panel{background:var(--card);border-radius:18px;box-shadow:0 6px 16px -10px #00254b55;overflow:hidden}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th{text-align:left;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);background:#f4f1ec;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0}
+td{padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink);vertical-align:top}
+tbody tr{transition:background .2s}
+tbody tr:hover{background:#f7f9ff}
+td.muted{color:var(--txt);font-size:13px}
+.empty{padding:40px 20px;text-align:center;color:var(--txt)}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:#00433d1f;color:var(--teal)}
+.state{padding:16px 20px;font-size:14px;font-weight:600}
+.state.err{color:var(--red)}
+.skel{height:14px;border-radius:6px;background:linear-gradient(90deg,#00254b0d,#00254b1f,#00254b0d);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+@media(max-width:700px){.stats{grid-template-columns:1fr}.toolbar input{max-width:none}.toolbar .count{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginView">
+  <div class="card">
+    <h1>CivicFix Admin</h1>
+    <p class="sub">Sign in with your staff account.</p>
+    <form id="loginForm" novalidate>
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button class="btn wide" type="submit" id="btn">Sign in</button>
+      <div class="msg" id="msg" role="status"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashView" class="hidden">
+  <header>
+    <div class="brand"><i>🏛</i>CivicFix Admin</div>
+    <div class="who"><span id="welcome"></span><button class="btn light" id="logout">Sign out</button></div>
+  </header>
+  <main>
+    <h2>Complaints</h2>
+    <p class="lead">All complaints submitted through the site, newest first.</p>
+
+    <div class="stats">
+      <div class="stat"><span>Total complaints</span><b id="sTotal">–</b></div>
+      <div class="stat"><span>Received today</span><b id="sToday">–</b></div>
+      <div class="stat"><span>Showing</span><b id="sShow">–</b></div>
+    </div>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search name, email or phone" aria-label="Search complaints">
+      <button class="btn light" id="refresh">↻ Refresh</button>
+      <span class="count" id="count"></span>
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Received</th><th>Name</th><th>Email</th><th>Phone</th><th>Ref</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="state hidden" id="state"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+var SUPABASE_URL = "https://qtqjaylpmbpuokbfjcye.supabase.co";
+var SUPABASE_KEY = "sb_publishable_uc5JLkQwqtbvAh1VDx3Vtw_Hd4NIhg8";
+var $ = function(id){ return document.getElementById(id); };
+var all = [];
+
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+    return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+  });
+}
+function authHeaders(){
+  return { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + sessionStorage.getItem("cf_token") };
+}
+
+/* ---------- views ---------- */
+function showLogin(text){
+  $("dashView").classList.add("hidden");
+  $("loginView").classList.remove("hidden");
+  $("msg").style.color = "#ba1a1a"; $("msg").textContent = text || "";
+  $("btn").disabled = false; $("btn").textContent = "Sign in";
+}
+function showDashboard(staff){
+  $("loginView").classList.add("hidden");
+  $("dashView").classList.remove("hidden");
+  $("welcome").textContent = "Welcome, " + (staff.full_name || "Admin");
+}
+
+/* ---------- auth ---------- */
+async function signIn(email, password){
+  var res = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+    body: JSON.stringify({ email: email, password: password })
+  });
+  if (!res.ok) throw new Error("Invalid email or password.");
+  var data = await res.json();
+  sessionStorage.setItem("cf_token", data.access_token);
+}
+async function getStaff(){
+  var res = await fetch(SUPABASE_URL + "/rest/v1/staff?select=role,full_name", { headers: authHeaders() });
+  if (!res.ok) throw new Error("Could not verify staff access.");
+  var rows = await res.json();
+  if (!rows.length || rows[0].role !== "admin") throw new Error("This account does not have admin access.");
+  return rows[0];
+}
+function signOut(){
+  sessionStorage.removeItem("cf_token");
+  all = [];
+  showLogin("You have been signed out.");
+}
+
+/* ---------- complaints ---------- */
+function setState(text, isErr){
+  var s = $("state");
+  if (!text) { s.classList.add("hidden"); return; }
+  s.classList.remove("hidden");
+  s.className = "state" + (isErr ? " err" : "");
+  s.textContent = text;
+}
+function renderStats(list){
+  var today = new Date().toDateString();
+  var n = list.filter(function(c){ return new Date(c.created_at).toDateString() === today; }).length;
+  $("sTotal").textContent = all.length;
+  $("sToday").textContent = n;
+  $("sShow").textContent = list.length;
+}
+function renderRows(){
+  var q = $("search").value.trim().toLowerCase();
+  var list = all.filter(function(c){
+    if (!q) return true;
+    return [c.name, c.email, c.phone].some(function(v){ return String(v || "").toLowerCase().indexOf(q) !== -1; });
+  });
+  renderStats(list);
+  $("count").textContent = list.length + " of " + all.length + " complaints";
+  if (!list.length) {
+    $("rows").innerHTML = '<tr><td colspan="5" class="empty">' + (all.length ? "No complaints match your search." : "No complaints yet.") + '</td></tr>';
+    return;
+  }
+  $("rows").innerHTML = list.map(function(c){
+    var when = new Date(c.created_at).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    return "<tr>" +
+      "<td class='muted'>" + esc(when) + "</td>" +
+      "<td>" + esc(c.name) + "</td>" +
+      "<td>" + esc(c.email) + "</td>" +
+      "<td>" + esc(c.phone) + "</td>" +
+      "<td><span class='badge'>#" + esc(c.id) + "</span></td>" +
+      "</tr>";
+  }).join("");
+}
+async function loadComplaints(){
+  $("rows").innerHTML = '<tr><td colspan="5"><div class="skel" style="margin:14px 0"></div><div class="skel" style="margin:14px 0;width:70%"></div></td></tr>';
+  setState("");
+  var res = await fetch(SUPABASE_URL + "/rest/v1/complaints?select=id,created_at,name,email,phone&order=created_at.desc&limit=500", { headers: authHeaders() });
+  if (res.status === 401) throw new Error("expired");
+  if (!res.ok) throw new Error("Could not load complaints (error " + res.status + ").");
+  all = await res.json();
+  renderRows();
+}
+
+/* ---------- events ---------- */
+$("loginForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+  var email = $("email").value.trim(), pass = $("password").value;
+  if (!email || !pass) { $("msg").textContent = "Please enter email and password."; return; }
+  $("btn").disabled = true; $("btn").textContent = "Signing in…"; $("msg").textContent = "";
+  try {
+    await signIn(email, pass);
+    var staff = await getStaff();
+    showDashboard(staff);
+    await loadComplaints();
+  } catch (err) {
+    sessionStorage.removeItem("cf_token");
+    showLogin(err.message);
+  }
+});
+$("logout").addEventListener("click", signOut);
+$("refresh").addEventListener("click", async function(){
+  $("refresh").disabled = true;
+  try { await loadComplaints(); }
+  catch (err) { if (err.message === "expired") return signOut(); setState(err.message, true); }
+  finally { $("refresh").disabled = false; }
+});
+$("search").addEventListener("input", renderRows);
+
+/* ---------- start ---------- */
+(async function init(){
+  if (!sessionStorage.getItem("cf_token")) return showLogin();
+  try {
+    showDashboard(await getStaff());
+    await loadComplaints();
+  } catch (err) {
+    if (err.message === "expired") return showLogin("Please sign in again.");
+    showLogin(err.message === "This account does not have admin access." ? err.message : "Please sign in again.");
+  }
+})();
+</script>
+</body>
+</html>
