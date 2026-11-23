@@ -50,6 +50,9 @@ td{padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;color:va
 tbody tr{transition:background .2s}
 tbody tr:hover{background:#f7f9ff}
 td.muted{color:var(--txt);font-size:13px}
+select.st{padding:8px 10px;border:1px solid #c3c6d0;border-radius:10px;font:600 13px Inter,system-ui,sans-serif;background:#fff;color:var(--ink);cursor:pointer}
+select.st:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px #0051d52a}
+select.st:disabled{opacity:.6;cursor:wait}
 td.desc{max-width:320px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
 .empty{padding:40px 20px;text-align:center;color:var(--txt)}
 .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:#00433d1f;color:var(--teal)}
@@ -103,7 +106,7 @@ td.desc{max-width:320px;font-size:13px;line-height:1.5;white-space:pre-wrap;word
     <div class="panel">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Received</th><th>Category</th><th>Description</th><th>Name</th><th>Email</th><th>Phone</th><th>Ref</th></tr></thead>
+          <thead><tr><th>Received</th><th>Category</th><th>Description</th><th>Status</th><th>Name</th><th>Email</th><th>Phone</th><th>Ref</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -179,6 +182,37 @@ function renderStats(list){
   $("sToday").textContent = n;
   $("sShow").textContent = list.length;
 }
+var STATUSES = ["Received", "Assigned", "In progress", "Resolved", "Rejected"];
+function statusSelect(c){
+  var current = c.status || "Received";
+  return "<select class='st' data-id='" + esc(c.id) + "' aria-label='Status'>" +
+    STATUSES.map(function(opt){
+      return "<option" + (opt === current ? " selected" : "") + ">" + esc(opt) + "</option>";
+    }).join("") + "</select>";
+}
+async function updateStatus(id, value, sel){
+  var prev = null;
+  all.forEach(function(c){ if (String(c.id) === String(id)) { prev = c.status; c.status = value; } });
+  sel.disabled = true;
+  try {
+    var res = await fetch(SUPABASE_URL + "/rest/v1/complaints?id=eq." + encodeURIComponent(id), {
+      method: "PATCH",
+      headers: Object.assign({ "Content-Type": "application/json", "Prefer": "return=minimal" }, authHeaders()),
+      body: JSON.stringify({ status: value })
+    });
+    if (res.status === 401) throw new Error("expired");
+    if (!res.ok) throw new Error("Could not save status (error " + res.status + ").");
+    setState("Status updated.", false);
+    setTimeout(function(){ setState(""); }, 2000);
+  } catch (err) {
+    all.forEach(function(c){ if (String(c.id) === String(id)) c.status = prev; });
+    sel.value = prev || "Received";
+    if (err.message === "expired") return signOut();
+    setState(err.message, true);
+  } finally {
+    sel.disabled = false;
+  }
+}
 function renderRows(){
   var q = $("search").value.trim().toLowerCase();
   var list = all.filter(function(c){
@@ -188,7 +222,7 @@ function renderRows(){
   renderStats(list);
   $("count").textContent = list.length + " of " + all.length + " complaints";
   if (!list.length) {
-    $("rows").innerHTML = '<tr><td colspan="7" class="empty">' + (all.length ? "No complaints match your search." : "No complaints yet.") + '</td></tr>';
+    $("rows").innerHTML = '<tr><td colspan="8" class="empty">' + (all.length ? "No complaints match your search." : "No complaints yet.") + '</td></tr>';
     return;
   }
   $("rows").innerHTML = list.map(function(c){
@@ -197,6 +231,7 @@ function renderRows(){
       "<td class='muted'>" + esc(when) + "</td>" +
       "<td><span class='badge'>" + esc(c.category || "Not set") + "</span></td>" +
       "<td class='desc'>" + esc(c.description || "—") + "</td>" +
+      "<td>" + statusSelect(c) + "</td>" +
       "<td>" + esc(c.name) + "</td>" +
       "<td>" + esc(c.email) + "</td>" +
       "<td>" + esc(c.phone) + "</td>" +
@@ -205,9 +240,9 @@ function renderRows(){
   }).join("");
 }
 async function loadComplaints(){
-  $("rows").innerHTML = '<tr><td colspan="7"><div class="skel" style="margin:14px 0"></div><div class="skel" style="margin:14px 0;width:70%"></div></td></tr>';
+  $("rows").innerHTML = '<tr><td colspan="8"><div class="skel" style="margin:14px 0"></div><div class="skel" style="margin:14px 0;width:70%"></div></td></tr>';
   setState("");
-  var res = await fetch(SUPABASE_URL + "/rest/v1/complaints?select=id,created_at,name,email,phone,category,description&order=created_at.desc&limit=500", { headers: authHeaders() });
+  var res = await fetch(SUPABASE_URL + "/rest/v1/complaints?select=id,created_at,name,email,phone,category,description,status&order=created_at.desc&limit=500", { headers: authHeaders() });
   if (res.status === 401) throw new Error("expired");
   if (!res.ok) throw new Error("Could not load complaints (error " + res.status + ").");
   all = await res.json();
@@ -238,6 +273,9 @@ $("refresh").addEventListener("click", async function(){
   finally { $("refresh").disabled = false; }
 });
 $("search").addEventListener("input", renderRows);
+$("rows").addEventListener("change", function(e){
+  if (e.target.classList.contains("st")) updateStatus(e.target.getAttribute("data-id"), e.target.value, e.target);
+});
 
 /* ---------- start ---------- */
 (async function init(){
