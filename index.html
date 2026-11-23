@@ -506,7 +506,7 @@ footer a:hover{opacity:1;transform:translateX(6px)}
       <option value="Classroom">Classroom</option>
       <option value="Laboratory">Laboratory</option>
       <option value="Library">Library</option>
-      <option value="Canteen">Canteen</option>
+      <option value="Food Court">Food Court</option>
       <option value="Transport">Transport</option>
       <option value="Sanitation">Sanitation</option>
       <option value="Electrical">Electrical</option>
@@ -516,6 +516,14 @@ footer a:hover{opacity:1;transform:translateX(6px)}
       <option value="Admin Office">Admin Office</option>
       <option value="Other">Other</option>
     </select>
+    <div id="resWrap" style="display:none">
+      <label for="resident">Are you a hostelite or a localite?</label>
+      <select id="resident">
+        <option value="">Select…</option>
+        <option value="Hostelite">Hostelite</option>
+        <option value="Localite">Localite</option>
+      </select>
+    </div>
     <label for="block">Block</label>
     <select id="block" required>
       <option value="">Select a block…</option>
@@ -783,6 +791,10 @@ function fillFloors(){
   }
 }
 $("block").addEventListener("change", fillFloors);
+$("category").addEventListener("change", function(){
+  $("resWrap").style.display = this.value === "Transport" ? "block" : "none";
+  if (this.value !== "Transport") $("resident").value = "";
+});
 
 /* ---------- report form ---------- */
 $("rm_form").addEventListener("submit", function(e){
@@ -791,6 +803,7 @@ $("rm_form").addEventListener("submit", function(e){
   var name = $("name").value.trim(), email = $("email").value.trim(), phone = $("phone").value.trim();
   if (!category) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please choose an issue category."; return; }
   if (!$("block").value || !$("floor").value) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please choose the block and floor."; return; }
+  if (category === "Transport" && !$("resident").value) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please say whether you are a hostelite or a localite."; return; }
   if (description.length < 10) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please describe the complaint (at least 10 characters)."; return; }
   if (!name || !email || !phone) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please fill in name, email and phone."; return; }
   $("sb").disabled = true; $("sb").textContent = "Submitting…"; $("msg").textContent = "";
@@ -800,14 +813,15 @@ $("rm_form").addEventListener("submit", function(e){
     method: "POST", headers: headers,
     body: JSON.stringify({
       name: name, email: email, phone: phone, category: category, description: description,
-      block: $("block").value, floor: $("floor").value, location: $("location").value.trim() || null
+      block: $("block").value, floor: $("floor").value, location: $("location").value.trim() || null,
+      resident_type: category === "Transport" ? $("resident").value : null
     })
   })
     .then(function(res){ if (!res.ok) throw new Error("Save failed: " + res.status); return res; })
     .then(function(){
       $("msg").style.color = "#00433d";
       $("msg").textContent = "✔ Thank you! Your report has been submitted.";
-      $("rm_form").reset(); $("sb").disabled = false; $("sb").textContent = "Submit Report";
+      $("rm_form").reset(); $("resWrap").style.display = "none"; $("sb").disabled = false; $("sb").textContent = "Submit Report";
       setTimeout(function(){ closeModal("rm"); $("msg").textContent = ""; }, 2200);
     })
     .catch(function(){
