@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>My complaints – CivicFix</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#E6DED4;--card:#fff;--ink:#00254b;--pri:#0051d5;--txt:#43474f;--line:#00254b1f;--red:#ba1a1a;--teal:#00433d;--gold:#c9a24a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+.hidden{display:none!important}
+header{background:var(--ink);color:#fff;height:72px;padding:0 clamp(16px,3vw,32px);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:18px}
+.brand i{width:36px;height:36px;border-radius:11px;background:#fff;color:var(--ink);display:grid;place-items:center;font-style:normal}
+.nav{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:10px 18px;font:700 14px Inter,system-ui,sans-serif;cursor:pointer;background:#fff;color:var(--ink);text-decoration:none;transition:transform .2s,box-shadow .2s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px -8px #00254b66}
+.btn.p{background:var(--pri);color:#fff}
+.btn.light{background:transparent;color:#fff;border:2px solid #ffffff99}
+main{max-width:860px;margin:0 auto;padding:clamp(20px,4vw,40px) clamp(16px,3vw,24px)}
+h1{color:var(--ink);font-size:clamp(26px,3.6vw,36px);letter-spacing:-.02em;margin-bottom:6px}
+.lead{font-size:15px;margin-bottom:26px}
+.state{background:var(--card);border-radius:18px;padding:34px 24px;text-align:center;box-shadow:0 6px 16px -10px #00254b55}
+.state h2{color:var(--ink);font-size:20px;margin-bottom:8px}
+.state p{margin-bottom:18px}
+.state.err{color:var(--red);font-weight:600}
+.list{display:grid;gap:18px}
+.cmp{background:var(--card);border-radius:20px;padding:clamp(18px,2.6vw,26px);box-shadow:0 8px 20px -12px #00254b66;transition:transform .3s,box-shadow .3s}
+.cmp:hover{transform:translateY(-3px);box-shadow:0 18px 30px -14px #00254b77}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.ref{font-size:12px;font-weight:700;color:var(--txt);letter-spacing:.04em}
+.cat{display:inline-block;font-size:12px;font-weight:700;padding:4px 11px;border-radius:99px;background:#0051d51a;color:var(--pri);margin-right:6px}
+.desc{color:var(--ink);font-size:15px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-bottom:6px}
+.when{font-size:12px}
+/* status track */
+.track{display:flex;align-items:center;margin-top:18px;gap:0}
+.step{flex:1;text-align:center;position:relative;font-size:11px;font-weight:700;color:var(--txt);opacity:.5}
+.step:before{content:"";display:block;width:14px;height:14px;margin:0 auto 6px;border-radius:50%;background:var(--line)}
+.step.done{opacity:1;color:var(--ink)}
+.step.done:before{background:var(--pri);box-shadow:0 0 0 4px #0051d522}
+.step.now:before{background:var(--gold);box-shadow:0 0 0 6px #c9a24a33}
+.step:not(:last-child):after{content:"";position:absolute;top:6px;left:58%;width:84%;height:2px;background:var(--line)}
+.step.done:not(:last-child):after{background:var(--pri)}
+.rej{margin-top:16px;display:inline-block;font-size:13px;font-weight:700;padding:6px 12px;border-radius:99px;background:#ba1a1a1a;color:var(--red)}
+@media(max-width:560px){.step{font-size:10px}.nav .btn.light{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="index.html"><i>🏛</i>CivicFix</a>
+  <div class="nav">
+    <a class="btn light" href="index.html">Home</a>
+    <button class="btn" id="signout">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <h1>My complaints</h1>
+  <p class="lead">Track the complaints you have reported and see their current status.</p>
+  <div id="content"></div>
+</main>
+
+<script>
+var SUPABASE_URL = "https://qtqjaylpmbpuokbfjcye.supabase.co";
+var SUPABASE_KEY = "sb_publishable_uc5JLkQwqtbvAh1VDx3Vtw_Hd4NIhg8";
+var $ = function(id){ return document.getElementById(id); };
+var STAGES = ["Received", "Assigned", "In progress", "Resolved"];
+
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+    return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+  });
+}
+function token(){ return sessionStorage.getItem("cf_token"); }
+function authHeaders(){ return { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + token() }; }
+
+function setContent(html){ $("content").innerHTML = html; }
+function needSignIn(text){
+  setContent(
+    '<div class="state"><h2>' + esc(text || "Sign in to see your complaints") + '</h2>' +
+    '<p>Your complaints are linked to your account.</p>' +
+    '<a class="btn p" href="index.html">Go to sign in</a></div>'
+  );
+}
+
+function trackHtml(status){
+  if (status === "Rejected") return '<span class="rej">✖ Rejected</span>';
+  var idx = STAGES.indexOf(status || "Received");
+  if (idx < 0) idx = 0;
+  return '<div class="track">' + STAGES.map(function(stage, i){
+    var cls = i < idx ? "step done" : (i === idx ? "step done now" : "step");
+    return '<div class="' + cls + '">' + esc(stage) + '</div>';
+  }).join("") + '</div>';
+}
+
+function render(list){
+  if (!list.length) {
+    setContent(
+      '<div class="state"><h2>No complaints yet</h2><p>When you report a civic issue, it will appear here with its status.</p>' +
+      '<a class="btn p" href="index.html#issues">Report an issue</a></div>'
+    );
+    return;
+  }
+  setContent('<div class="list">' + list.map(function(c){
+    var when = new Date(c.created_at).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    return '<article class="cmp">' +
+      '<div class="top"><div><span class="cat">' + esc(c.category || "Not set") + '</span></div>' +
+      '<span class="ref">Ref #' + esc(c.id) + '</span></div>' +
+      '<p class="desc">' + esc(c.description || "No description") + '</p>' +
+      '<p class="when">Reported ' + esc(when) + '</p>' +
+      trackHtml(c.status) +
+      '</article>';
+  }).join("") + '</div>');
+}
+
+async function load(){
+  setContent('<p class="lead">Loading…</p>');
+  var res = await fetch(SUPABASE_URL + "/rest/v1/complaints?select=id,created_at,category,description,status&order=created_at.desc", { headers: authHeaders() });
+  if (res.status === 401) throw new Error("expired");
+  if (!res.ok) throw new Error("Could not load your complaints (error " + res.status + ").");
+  render(await res.json());
+}
+
+$("signout").addEventListener("click", function(){
+  sessionStorage.removeItem("cf_token");
+  needSignIn("You have been signed out");
+});
+
+(async function init(){
+  if (!token()) return needSignIn();
+  try { await load(); }
+  catch (err) {
+    if (err.message === "expired") { sessionStorage.removeItem("cf_token"); return needSignIn("Your session has ended. Please sign in again"); }
+    setContent('<div class="state err">' + esc(err.message) + '</div>');
+  }
+})();
+</script>
+</body>
+</html>

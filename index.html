@@ -335,6 +335,7 @@ footer a:hover{opacity:1;transform:translateX(6px)}
   <nav id="dnav"><a href="#how">How it works</a><a href="#issues">Issue types</a><a href="#proof">Before &amp; after</a><a href="#timeline">Timeline</a><a href="#faq">FAQ</a></nav>
   <div class="hr">
     <button class="theme" id="themeBtn" aria-label="Toggle dark mode">🌙</button>
+    <a class="btn" id="myBtn" href="my-complaints.html" style="display:none">My Complaints</a>
     <button class="btn" id="loginBtn" type="button">Sign In</button>
     <button class="btn p" data-open>⚑ Report an Issue</button>
     <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">☰</button>
@@ -635,7 +636,10 @@ document.querySelectorAll(".ov").forEach(function(o){
 /* ---------- auth ---------- */
 var pendingReport = false, authMode = "signin";
 function getToken(){ return sessionStorage.getItem("cf_token"); }
-function refreshLoginButton(){ $("loginBtn").textContent = getToken() ? "Sign Out" : "Sign In"; }
+function refreshLoginButton(){
+  $("loginBtn").textContent = getToken() ? "Sign Out" : "Sign In";
+  $("myBtn").style.display = getToken() ? "inline-flex" : "none";
+}
 function openAuth(text){ $("am_msg").textContent = text || ""; openModal("am"); $("am_email").focus(); }
 
 function setAuthMode(m){
