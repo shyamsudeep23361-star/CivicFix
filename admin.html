@@ -106,7 +106,7 @@ td.desc{max-width:320px;font-size:13px;line-height:1.5;white-space:pre-wrap;word
     <div class="panel">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Received</th><th>Category</th><th>Description</th><th>Status</th><th>Name</th><th>Email</th><th>Phone</th><th>Ref</th></tr></thead>
+          <thead><tr><th>Received</th><th>Category</th><th>Routed to</th><th>Location</th><th>Description</th><th>Status</th><th>Name</th><th>Email</th><th>Phone</th><th>Ref</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -217,12 +217,12 @@ function renderRows(){
   var q = $("search").value.trim().toLowerCase();
   var list = all.filter(function(c){
     if (!q) return true;
-    return [c.name, c.email, c.phone, c.category, c.description].some(function(v){ return String(v || "").toLowerCase().indexOf(q) !== -1; });
+    return [c.name, c.email, c.phone, c.category, c.description, c.department, c.block, c.location].some(function(v){ return String(v || "").toLowerCase().indexOf(q) !== -1; });
   });
   renderStats(list);
   $("count").textContent = list.length + " of " + all.length + " complaints";
   if (!list.length) {
-    $("rows").innerHTML = '<tr><td colspan="8" class="empty">' + (all.length ? "No complaints match your search." : "No complaints yet.") + '</td></tr>';
+    $("rows").innerHTML = '<tr><td colspan="10" class="empty">' + (all.length ? "No complaints match your search." : "No complaints yet.") + '</td></tr>';
     return;
   }
   $("rows").innerHTML = list.map(function(c){
@@ -230,6 +230,8 @@ function renderRows(){
     return "<tr>" +
       "<td class='muted'>" + esc(when) + "</td>" +
       "<td><span class='badge'>" + esc(c.category || "Not set") + "</span></td>" +
+      "<td>" + esc(c.department || "Not routed") + (c.resident_type ? " <span class='muted'>(" + esc(c.resident_type) + ")</span>" : "") + "</td>" +
+      "<td class='muted'>" + esc([c.block, c.floor, c.location].filter(Boolean).join(", ") || "—") + "</td>" +
       "<td class='desc'>" + esc(c.description || "—") + "</td>" +
       "<td>" + statusSelect(c) + "</td>" +
       "<td>" + esc(c.name) + "</td>" +
@@ -240,9 +242,9 @@ function renderRows(){
   }).join("");
 }
 async function loadComplaints(){
-  $("rows").innerHTML = '<tr><td colspan="8"><div class="skel" style="margin:14px 0"></div><div class="skel" style="margin:14px 0;width:70%"></div></td></tr>';
+  $("rows").innerHTML = '<tr><td colspan="10"><div class="skel" style="margin:14px 0"></div><div class="skel" style="margin:14px 0;width:70%"></div></td></tr>';
   setState("");
-  var res = await fetch(SUPABASE_URL + "/rest/v1/complaints?select=id,created_at,name,email,phone,category,description,status&order=created_at.desc&limit=500", { headers: authHeaders() });
+  var res = await fetch(SUPABASE_URL + "/rest/v1/complaints?select=id,created_at,name,email,phone,category,description,status,block,floor,location,department,resident_type&order=created_at.desc&limit=500", { headers: authHeaders() });
   if (res.status === 401) throw new Error("expired");
   if (!res.ok) throw new Error("Could not load complaints (error " + res.status + ").");
   all = await res.json();
