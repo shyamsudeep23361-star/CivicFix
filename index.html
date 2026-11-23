@@ -277,6 +277,8 @@ footer a:hover{opacity:1;transform:translateX(6px)}
 .md label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin:16px 0 6px}
 .md input{width:100%;padding:13px;border:1px solid #c3c6d0;border-radius:12px;font:15px Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);transition:border .2s,box-shadow .2s}
 .md input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px #0051d52a}
+.md select,.md textarea{width:100%;padding:13px;border:1px solid #c3c6d0;border-radius:12px;font:15px Inter,system-ui,sans-serif;background:#f9f9ff;color:var(--ink);resize:vertical}
+.md select:focus,.md textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px #0051d52a}
 .md .btn{width:100%;margin-top:24px}
 .msg{margin-top:12px;font-size:13px;font-weight:600;text-align:center;min-height:18px;color:var(--red)}
 /* ---------- responsive ---------- */
@@ -496,6 +498,17 @@ footer a:hover{opacity:1;transform:translateX(6px)}
   <button class="x" data-close="rm" aria-label="Close">×</button>
   <h3>Report an Issue</h3><p style="font-size:14px">Share your details and our ward team will reach out.</p>
   <form id="rm_form" novalidate>
+    <label for="category">Issue category</label>
+    <select id="category" required>
+      <option value="">Select a category…</option>
+      <option value="Potholes">Potholes</option>
+      <option value="Streetlights">Streetlights</option>
+      <option value="Garbage">Garbage</option>
+      <option value="Water Supply">Water Supply</option>
+      <option value="Other">Other</option>
+    </select>
+    <label for="description">Describe the complaint</label>
+    <textarea id="description" rows="4" maxlength="1000" placeholder="What is the problem, and where exactly is it? (at least 10 characters)" required></textarea>
     <label for="name">Name</label><input id="name" type="text" placeholder="Your full name" required>
     <label for="email">Email</label><input id="email" type="email" placeholder="you@example.com" required>
     <label for="phone">Phone</label><input id="phone" type="tel" placeholder="+91 98765 43210" required>
@@ -716,14 +729,17 @@ refreshLoginButton();
 /* ---------- report form ---------- */
 $("rm_form").addEventListener("submit", function(e){
   e.preventDefault();
+  var category = $("category").value, description = $("description").value.trim();
   var name = $("name").value.trim(), email = $("email").value.trim(), phone = $("phone").value.trim();
+  if (!category) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please choose an issue category."; return; }
+  if (description.length < 10) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please describe the complaint (at least 10 characters)."; return; }
   if (!name || !email || !phone) { $("msg").style.color = "#ba1a1a"; $("msg").textContent = "Please fill in name, email and phone."; return; }
   $("sb").disabled = true; $("sb").textContent = "Submitting…"; $("msg").textContent = "";
   var headers = { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Prefer": "return=minimal" };
   if (getToken()) headers["Authorization"] = "Bearer " + getToken();
   fetch(SUPABASE_URL + "/rest/v1/complaints", {
     method: "POST", headers: headers,
-    body: JSON.stringify({ name: name, email: email, phone: phone })
+    body: JSON.stringify({ name: name, email: email, phone: phone, category: category, description: description })
   })
     .then(function(res){ if (!res.ok) throw new Error("Save failed: " + res.status); return res; })
     .then(function(){
