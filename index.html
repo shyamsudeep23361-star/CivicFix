@@ -519,23 +519,16 @@ footer a:hover{opacity:1;transform:translateX(6px)}
     <label for="block">Block</label>
     <select id="block" required>
       <option value="">Select a block…</option>
-      <option value="Block A">Block A</option>
-      <option value="Block B">Block B</option>
-      <option value="Block C">Block C</option>
-      <option value="Admin Block">Admin Block</option>
-      <option value="Hostel">Hostel</option>
-      <option value="Canteen Area">Canteen Area</option>
+      <option value="Main Building">Main Building</option>
+      <option value="Ratan Tata Block">Ratan Tata Block</option>
+      <option value="Mechanical Block">Mechanical Block</option>
+      <option value="Boys Hostel">Boys Hostel</option>
+      <option value="Girls Hostel">Girls Hostel</option>
       <option value="Other">Other</option>
     </select>
     <label for="floor">Floor</label>
     <select id="floor" required>
-      <option value="">Select a floor…</option>
-      <option value="Ground">Ground</option>
-      <option value="1st">1st</option>
-      <option value="2nd">2nd</option>
-      <option value="3rd">3rd</option>
-      <option value="4th">4th</option>
-      <option value="Outdoor">Outdoor</option>
+      <option value="">Select a block first…</option>
     </select>
     <label for="location">Room or area (optional)</label>
     <input id="location" type="text" maxlength="80" placeholder="e.g. Room 204, Washroom near stairs">
@@ -760,6 +753,36 @@ document.querySelectorAll("[data-open]").forEach(function(b){
   if (token) { sessionStorage.setItem("cf_token", token); history.replaceState(null, "", location.pathname); }
 })();
 refreshLoginButton();
+
+/* ---------- campus buildings and their floors ---------- */
+var CAMPUS = {
+  "Main Building":     4,
+  "Ratan Tata Block":  6,
+  "Mechanical Block":  5,
+  "Boys Hostel":       5,
+  "Girls Hostel":      6
+};
+function ordinal(n){
+  var s = ["th","st","nd","rd"], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+function fillFloors(){
+  var block = $("block").value, sel = $("floor");
+  sel.innerHTML = "";
+  if (!CAMPUS[block]) {
+    sel.innerHTML = '<option value="">Select a block first…</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">Select a floor…</option>';
+  var top = CAMPUS[block];
+  for (var f = 0; f <= top; f++) {
+    var label = f === 0 ? "Ground" : ordinal(f) + " floor";
+    var opt = document.createElement("option");
+    opt.value = label; opt.textContent = label;
+    sel.appendChild(opt);
+  }
+}
+$("block").addEventListener("change", fillFloors);
 
 /* ---------- report form ---------- */
 $("rm_form").addEventListener("submit", function(e){
